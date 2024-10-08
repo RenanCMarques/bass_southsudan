@@ -2,7 +2,7 @@
 title: "Survey Dashboard"
 subtitle: "2024 IOM South Sudan"
 author: "Data & Methods Subteam - Bass Connections"
-date: "2024-10-01"
+date: "2024-10-08"
 output:
  html_document:
    theme: journal
@@ -42,11 +42,11 @@ df <- read.csv("Descriptive Analysis/Bass_Team_Data_V2.csv")
 
 Total number of respondents: **`r df %>% nrow()`**
 
-All question numbers below are based on the "Key Variables for Descriptive Statistics" doc file.
+All question numbers below are based on the ["Key Variables for Descriptive Statistics"](https://docs.google.com/document/d/1ebEU83f8HC1U-u-Qz2uxLPLWQA_oEzr6n0tZPpUNEgE/edit#heading=h.457qdvvkxtly) doc file.
 
 All the descriptive calculated for index questions were based on the **unimputed** variable.
 
-# 1) Socio-demographics questions
+# 1) Socio-demographics
 
 ## Languages {.tabset} 
 
@@ -325,6 +325,24 @@ df %>%
 
 ```
 
+### By sex
+
+How to interpret the table? Example: Within the Male, 42% use Radio as their main source of information. Within Female, its 38%. 
+```{r Source of info by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.8) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.8, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
 ## Religion {.tabset} 
 
 ### Entire sample
@@ -423,7 +441,417 @@ df %>%
 
 ```
 
-# 2) Human Fragility
+# 2) Mobility & Displacement
+
+### Q2.4 (Mobility): To what degree do you feel that you have the ability to choose the location in which you live? {.tabset}  
+
+#### Entire sample
+
+```{r Q2.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.4, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.4, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.4 = factor(Q2.4)) %>%
+  ggplot(aes(Q2.4, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.4", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.4) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.4, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.4 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.4) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.4, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q2.5 (Moved): Have you ever moved from one county to another? {.tabset} 
+
+#### Entire sample
+
+```{r Q2.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.5, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.5, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.5 = factor(Q2.5)) %>%
+  ggplot(aes(Q2.5, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.5", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.5) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.5, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.5 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.5) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.5, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+## Q2.5.1 (Reason Moved): If yes to Q2.5, Which of the following most accurately describes why you moved? {.tabset} 
+
+#### Entire sample
+
+```{r Q2.5.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.5.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.5.1, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.5.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.5.1, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.5.1 = factor(Q2.5.1)) %>%
+  ggplot(aes(Q2.5.1, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.5.1", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.5.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.5.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.5.1, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.5.1 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.5.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.5.1, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+## Q2.5.2 (Forced displaced then return): If answer “1” to Q2.5.1 (i.e. fled for security/survival), do you currently live in the county in which you were born? {.tabset} 
+
+#### Entire sample
+
+```{r Q2.5.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.5.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.5.2, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.5.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.5.2, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.5.2 = factor(Q2.5.2)) %>%
+  ggplot(aes(Q2.5.2, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.5.2", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.5.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.5.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.5.2, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.5.2 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.5.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.5.2, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+## Q2.6 (Intention to move): Do you intend to leave [this village] and live elsewhere in the next 5 years? {.tabset} 
+
+#### Entire sample
+
+```{r Q2.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.6, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.6, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.6 = factor(Q2.6)) %>%
+  ggplot(aes(Q2.6, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.6", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.6) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.6, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.6 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.6) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.6, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+## Q2.6.1 (Where intend to move): If yes to Q2.6, where do you intend to move? {.tabset}
+
+#### Entire sample
+
+```{r Q2.6.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.6.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q2.6.1, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q2.6.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q2.6.1, answers) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers),
+         Q2.6.1 = factor(Q2.6.1)) %>%
+  ggplot(aes(Q2.6.1, answers)) +
+  geom_col(fill = "blue", color = "black", alpha = 0.7)+
+  labs(x = "Q2.6.1", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q2.6.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q1.5_County, Q2.6.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q2.6.1, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+#### By sex
+
+```{r Q2.6.1 by sex, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q2.1, Q2.6.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  drop_na() %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q2.1, Q2.6.1, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+# 3) Human Fragility
 
 All the answers are on a **scale of 0-1**, i.e. can have the following values: 0, 0.25, 0.5, 0.75, 1. The higher, the more fragile.
 
@@ -431,7 +859,7 @@ The higher, the more fragile.
 
 ## Index Questions
 
-### Q5.5.1: Over the past year, how often, if ever, have you or anyone in your family gone without enough foor to eat? {.tabset} 
+### Q5.5.1: Over the past year, how often, if ever, have you or anyone in your family gone without enough foor to eat? {.tabset}
 
 #### Entire sample
 
@@ -700,7 +1128,7 @@ df %>%
   mutate(percentage = answers / sum(answers),
          Q8.5.6_raw = factor(Q8.5.6_raw)) %>%
   ggplot(aes(Q8.5.6_raw, answers)) +
-  geom_col( fill = "blue", color = "black", alpha = 0.7)+
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
   labs(x = "Q8.5.6", y = "Number of respondents") +
   theme(axis.text.x = element_text(size = 11),
         axis.title.x = element_text(margin = margin(t = 10))) +
@@ -735,7 +1163,617 @@ df %>%
 
 Coming soon...
 
-# 3) Political and Legal Fragility 
+# 4) Societal Fragility
+
+All the answers are in a **scale of 0-1**, i.e. can have the following values: 0, 0.25, 0.5, 0.75, 1. The higher, the more fragile.
+
+The higher, the more fragile.
+
+Ex:
+0 = Not severe at all 
+0.25 = Not severe
+0.50 = Somewhat severe
+0.75 = Severe
+1 = Extremely severe
+
+## Index Questions
+
+### Q6.1 How much do you feel welcomed or accepted in your current community? {.tabset}
+
+#### Entire sample
+
+```{r Q6.1, eval = TRUE, echo = FALSE, warnings = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  summarize(mean = mean(Q6.1_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.1_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q6.1_raw, answers) %>%
+  mutate(percentage = answers/sum(answers) * 100) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.1_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q6.1_raw, answers) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q6.1_raw = factor(Q6.1_raw)) %>%
+  ggplot(aes(Q6.1_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q6.1_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip() 
+
+```
+
+#### By county
+
+```{r Q6.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q6.1_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q1.5_County, Q6.1_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers) * 100) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q6.1_raw, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q6.2 In the past year, how often, if at all, have you been personally discriminated against based on any of the following: your gender, your religion, your ethnicity, any disability you might have, or your place of origin? {.tabset}
+
+#### Entire sample
+
+```{r Q6.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  summarize(mean = mean(Q6.2_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.2_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q6.2_raw, answers) %>%
+  mutate(percentage = answers/sum(answers) * 100) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.2_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q6.2_raw, answers) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q6.2_raw = factor(Q6.2_raw)) %>%
+  ggplot(aes(Q6.2_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q6.2_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip() 
+
+```
+
+#### By county
+
+```{r Q6.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q6.2_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q1.5_County, Q6.2_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers) * 100) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q6.2_raw, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q6.3 To what extent do you agree with the following statement? “People in your boma are willing to help each other.” {.tabset}
+
+#### Entire sample
+
+```{r Q6.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  summarize(mean = mean(Q6.3_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.3_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q6.3_raw, answers) %>%
+  mutate(percentage = answers/sum(answers) * 100) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.3_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q6.3_raw, answers) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q6.3_raw = factor(Q6.3_raw)) %>%
+  ggplot(aes(Q6.3_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q6.3_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip() 
+
+```
+
+#### By county
+
+```{r Q6.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q6.3_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q1.5_County, Q6.3_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers) * 100) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q6.3_raw, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q6.4 Imagine that you were in an argument with your neighbor about a small issue. To what extent do you agree or disagree with the following statement? “I know who I could seek help from to resolve this argument.” {.tabset}
+
+#### Entire sample
+
+```{r Q6.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  summarize(mean = mean(Q6.4_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.4_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q6.4_raw, answers) %>%
+  mutate(percentage = answers/sum(answers) * 100) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.4_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q6.4_raw, answers) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q6.4_raw = factor(Q6.4_raw)) %>%
+  ggplot(aes(Q6.4_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q6.4_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip() 
+
+```
+
+#### By county
+
+```{r Q6.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q6.4_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q1.5_County, Q6.4_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers) * 100) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q6.4_raw, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q6.9 How would you describe the relationship between individuals who are not originally from the community and the rest of the community members? {.tabset}
+
+#### Entire sample
+
+```{r Q6.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  summarize(mean = mean(Q6.9_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.9_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q6.9_raw, answers) %>%
+  mutate(percentage = answers/sum(answers) * 100) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q6.9_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q6.9_raw, answers) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q6.9_raw = factor(Q6.9_raw)) %>%
+  ggplot(aes(Q6.9_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q6.9_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip() 
+
+```
+
+#### By county
+
+```{r Q6.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df%>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q6.9_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df%>%
+  group_by(Q1.5_County, Q6.9_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers) * 100) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q6.9_raw, answers, percentage) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+## Additional Questions
+
+Coming soon...
+
+# 5) Security Fragility
+
+All the answers are in a *scale of 0-1**, i.e. can have the following values: 0, 0.25, 0.5, 0.75, 1. The higher, the more fragile.
+
+The higher, the more fragile.
+
+## Index Questions
+
+### Q8.5.2: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of violent crime in your community {.tabset} 
+
+#### Entire sample
+
+```{r Q8.5.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  summarize(mean = mean(Q8.5.2_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.2_raw) %>%
+  summarise(answers = n()) %>%
+  #arrange(desc(answers)) %>%
+  select(Q8.5.2_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.2_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.5.2_raw, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.5.2_raw = factor(Q8.5.2_raw)) %>%
+  ggplot(aes(Q8.5.2_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q8.5.2", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q8.5.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.5.2_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.5.2_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.5.2_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q8.5.3: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of armed conflict/war happening in your community? {.tabset} 
+
+#### Entire sample
+
+```{r Q8.5.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  summarize(mean = mean(Q8.5.2_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.3_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.5.3_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.3_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.5.3_raw, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.5.3_raw = factor(Q8.5.3_raw)) %>%
+  ggplot(aes(Q8.5.3_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q8.5.3", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q8.5.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.5.3_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.5.3_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.5.3_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+```
+### Q8.5.3: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of land conflicts happening in your community? {.tabset} 
+
+#### Entire sample
+```{r Q8.5.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  summarize(mean = mean(Q8.5.7_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.7_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.5.7_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.7_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.5.7_raw, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.5.7_raw = factor(Q8.5.7_raw)) %>%
+  ggplot(aes(Q8.5.7_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q8.5.7", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q8.5.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.5.7_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.5.7_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.5.7_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.5.8: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of conflicts over cattle happening in your community? {.tabset} 
+
+#### Entire sample
+```{r Q8.5.8, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  summarize(mean = mean(Q8.5.8_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.8_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.5.8_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.8_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.5.8_raw, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.5.8_raw = factor(Q8.5.8_raw)) %>%
+  ggplot(aes(Q8.5.8_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q8.5.8", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q8.5.8 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.5.8_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.5.8_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.5.8_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.5.9: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of violence involving community-based militias, vigilante groups, or self-defense groups happening in your community? {.tabset}
+
+#### Entire sample
+```{r Q8.5.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  summarize(mean = mean(Q8.5.9_unimputed, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.9_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.5.9_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.5.9_raw) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.5.9_raw, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.5.9_raw = factor(Q8.5.9_raw)) %>%
+  ggplot(aes(Q8.5.9_raw, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q8.5.9", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+```
+
+#### By county
+
+```{r Q8.5.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.5.9_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.5.9_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.5.9_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+# 6) Political and Legal Fragility 
 
 All the answers are in a **scale of 0-1**, i.e. can have the following values: 0, 0.25, 0.5, 0.75, 1. The higher, the more fragile.
 
@@ -1074,7 +2112,7 @@ df %>%
 
 Coming soon...
 
-# 4) Environmental Fragility
+# 7) Environmental Fragility
 
 All the answers are in a **scale of 0-1**, i.e. can have the following values: 0, 0.25, 0.5, 0.75, 1. The higher, the more fragile.
 
