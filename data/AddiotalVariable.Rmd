@@ -605,6 +605,18 @@ df %>%
   kable(align = "llcc") %>%
   kable_styling(position = "left", full_width = F)
 
+#Short Matrix-Table 
+df %>%
+  mutate(Male_Child = ifelse(grepl("Male child", Q11.5), 1, 0),
+         Female_Child = ifelse(grepl("Female child", Q11.5), 1, 0),
+         Adult_Woman = ifelse(grepl("Adult woman", Q11.5), 1, 0),
+         Adult_Man = ifelse(grepl("Adult man", Q11.5), 1, 0)) %>%
+  group_by(Q1.5_County) %>%
+  summarise(across(starts_with("Male_Child"):starts_with("Adult_Man"), sum, .names = "Count_{.col}")) %>%
+  kable(align = "l", 
+        col.names = c("County", "Male Child", "Female Child", "Adult Woman", "Adult Man")) %>%
+  kable_styling(position = "left", full_width = F)
+
 # Bar chart by county 
 
 df_matrix_county <- df %>%
@@ -625,4 +637,1333 @@ ggplot(df_matrix_county, aes(x = reorder(Household_Member, Count), y = Count, fi
   theme(axis.text.y = element_text(hjust = 1)) +
   guides(fill = FALSE) +
   facet_wrap(~ Q1.5_County, scales = "free_y")
+```
+
+## Q11.7 On a scale from 1 through 5, where 1 is “strongly disagree” and 5 is “strongly agree,” how much do you agree with the following statements about your county’s experiences within the last 5 years?
+
+All the answers are in a **scale of 1-5**, i.e. can have the following values: 1, 2, 3, 4, 5. The higher, the more agreement
+
+Ex:
+1 = Strongly disagree
+2 = Disagree
+3 = Neither agree nor disagree
+4 = Agree
+5 = Strongly agree
+6 = Prefer not to respond
+
+## Q11.7.1 In the last 5 years, the timing of the seasonal rains has changed
+
+#### Entire sample
+
+```{r Q11.7.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.1, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.1, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.1 = factor(Q11.7.1)) %>%
+  ggplot(aes(Q11.7.1, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.10A_raw", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+# For a Pie chart
+
+df %>%
+  group_by(Q11.7.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.2 = factor(Q11.7.1)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.1)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.1") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.1 to numeric
+df %>%
+  mutate(Q11.7.1 = case_when(
+    Q11.7.1 == "Strongly disagree" ~ 1,
+    Q11.7.1 == "Disagree" ~ 2,
+    Q11.7.1 == "Neither agree nor disagree" ~ 3,
+    Q11.7.1 == "Agree" ~ 4,
+    Q11.7.1 == "Strongly agree" ~ 5,
+    Q11.7.1 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.1, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.1, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.7.2 In the last 5 years, water shortages in the dry season have become more frequent
+
+#### Entire sample
+
+```{r Q11.7.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.2, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.2 = factor(Q11.7.2)) %>%
+  ggplot(aes(Q11.7.2, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.2", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.2 = factor(Q11.7.2)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.2)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.1 to numeric
+df %>%
+  mutate(Q11.7.2 = case_when(
+    Q11.7.2 == "Strongly disagree" ~ 1,
+    Q11.7.2 == "Disagree" ~ 2,
+    Q11.7.2 == "Neither agree nor disagree" ~ 3,
+    Q11.7.2 == "Agree" ~ 4,
+    Q11.7.2 == "Strongly agree" ~ 5,
+    Q11.7.2 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.2, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.2, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.7.3 In the last 5 years, the diversity of wildlife has diminished
+
+#### Entire sample
+
+```{r Q11.7.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.3, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.3, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.3 = factor(Q11.7.3)) %>%
+  ggplot(aes(Q11.7.3, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.3", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.3 = factor(Q11.7.3)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.3)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.3 to numeric
+df %>%
+  mutate(Q11.7.3 = case_when(
+    Q11.7.3 == "Strongly disagree" ~ 1,
+    Q11.7.3 == "Disagree" ~ 2,
+    Q11.7.3 == "Neither agree nor disagree" ~ 3,
+    Q11.7.3 == "Agree" ~ 4,
+    Q11.7.3 == "Strongly agree" ~ 5,
+    Q11.7.3 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.3, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.3) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.3, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+##Q11.7.4 In the last 5 years, there has been an increase in urbanization, for example the construction of new buildings
+
+#### Entire sample
+
+```{r Q11.7.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.4, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.4, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.4 = factor(Q11.7.4)) %>%
+  ggplot(aes(Q11.7.4, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.4", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.4 = factor(Q11.7.4)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.4)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.4 to numeric
+df %>%
+  mutate(Q11.7.4 = case_when(
+    Q11.7.4 == "Strongly disagree" ~ 1,
+    Q11.7.4 == "Disagree" ~ 2,
+    Q11.7.4 == "Neither agree nor disagree" ~ 3,
+    Q11.7.4 == "Agree" ~ 4,
+    Q11.7.4 == "Strongly agree" ~ 5,
+    Q11.7.4 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.4, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.4) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.4, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+##Q11.7.5 In the last 5 years, the land has become less fertile, such as from soil erosion
+
+#### Entire sample
+
+```{r Q11.7.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.5, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.5, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.5 = factor(Q11.7.5)) %>%
+  ggplot(aes(Q11.7.5, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.5", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.5 = factor(Q11.7.5)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.5)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.5 to numeric
+df %>%
+  mutate(Q11.7.5 = case_when(
+    Q11.7.5 == "Strongly disagree" ~ 1,
+    Q11.7.5 == "Disagree" ~ 2,
+    Q11.7.5 == "Neither agree nor disagree" ~ 3,
+    Q11.7.5 == "Agree" ~ 4,
+    Q11.7.5 == "Strongly agree" ~ 5,
+    Q11.7.5 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.5, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.5) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.5, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.7.6 In the last 5 years, deforestation has occurred, meaning that there has been cutting or other reductions in the size of forests
+
+#### Entire sample
+
+```{r Q11.7.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.6, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.6, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.6 = factor(Q11.7.6)) %>%
+  ggplot(aes(Q11.7.6, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.6", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.6 = factor(Q11.7.6)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.6)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.6 to numeric
+df %>%
+  mutate(Q11.7.6 = case_when(
+    Q11.7.6 == "Strongly disagree" ~ 1,
+    Q11.7.6 == "Disagree" ~ 2,
+    Q11.7.6 == "Neither agree nor disagree" ~ 3,
+    Q11.7.6 == "Agree" ~ 4,
+    Q11.7.6 == "Strongly agree" ~ 5,
+    Q11.7.6 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.6, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.6) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.6, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q11.7.7 In the last 5 years, excessive grazing has caused damage to grassland.
+
+#### Entire sample
+```{r Q11.7.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.7, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.7, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.7 = factor(Q11.7.7)) %>%
+  ggplot(aes(Q11.7.7, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.7", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.7 = factor(Q11.7.7)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.7)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.7 to numeric
+df %>%
+  mutate(Q11.7.7 = case_when(
+    Q11.7.7 == "Strongly disagree" ~ 1,
+    Q11.7.7 == "Disagree" ~ 2,
+    Q11.7.7 == "Neither agree nor disagree" ~ 3,
+    Q11.7.7 == "Agree" ~ 4,
+    Q11.7.7 == "Strongly agree" ~ 5,
+    Q11.7.7 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.7, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.7) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.7, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q11.7.8 In the last 5 years, the amount of waste left in the streets has increased.
+
+#### Entire sample
+```{r Q11.7.8, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.7.8) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.7.8, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.7.8) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.7.8, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.7.8 = factor(Q11.7.8)) %>%
+  ggplot(aes(Q11.7.8, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.7.8", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.7.8) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.7.8 = factor(Q11.7.8)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.7.8)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.7.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.7.8 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.7.8 to numeric
+df %>%
+  mutate(Q11.7.8 = case_when(
+    Q11.7.8 == "Strongly disagree" ~ 1,
+    Q11.7.8 == "Disagree" ~ 2,
+    Q11.7.8 == "Neither agree nor disagree" ~ 3,
+    Q11.7.8 == "Agree" ~ 4,
+    Q11.7.8 == "Strongly agree" ~ 5,
+    Q11.7.8 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.7.8, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.7.8) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.7.8, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8 Over the next 5 years in South Sudan, do you think changes in climate or weather patterns will cause less/fewer of the following crises, more of the following crises, or will have no impact on the following crises? 
+
+All the answers are in a **scale of 1-3**, i.e. can have the following values: 1, 2, 3.
+
+Ex:
+1 = Less impact
+2 = More impact
+3 = No impact
+
+## Q11.8.1 Droughts and water shortages
+
+#### Entire sample
+
+```{r Q11.8.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.1, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.1, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.1 = factor(Q11.8.1)) %>%
+  ggplot(aes(Q11.8.1, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.1", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.1 = factor(Q11.8.1)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.1)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.1") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.1 to numeric
+df %>%
+  mutate(Q11.8.1 = case_when(
+    Q11.8.1 == "Less" ~ 1,
+    Q11.8.1 == "More" ~ 2,
+    Q11.8.1 == "No impact" ~ 3,
+    Q11.8.1 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.1, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.1, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.2 Floods
+
+#### Entire sample
+
+```{r Q11.8.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.2, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.2 = factor(Q11.8.2)) %>%
+  ggplot(aes(Q11.8.2, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.2", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.2 = factor(Q11.8.2)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.2)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.2") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.2 to numeric
+df %>%
+  mutate(Q11.8.2 = case_when(
+    Q11.8.2 == "Less" ~ 1,
+    Q11.8.2 == "More" ~ 2,
+    Q11.8.2 == "No impact" ~ 3,
+    Q11.8.2 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.2, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.2, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.3 Changes in precipitation patterns
+
+#### Entire sample
+
+```{r Q11.8.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.3, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.3, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.3 = factor(Q11.8.3)) %>%
+  ggplot(aes(Q11.8.3, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.3", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.3 = factor(Q11.8.3)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.3)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.3") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.3 to numeric
+df %>%
+  mutate(Q11.8.3 = case_when(
+    Q11.8.3 == "Less" ~ 1,
+    Q11.8.3 == "More" ~ 2,
+    Q11.8.3 == "No impact" ~ 3,
+    Q11.8.3 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.3, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.3) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.3, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.4 Wildfires
+
+#### Entire sample
+
+```{r Q11.8.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.4, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.4, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.4 = factor(Q11.8.4)) %>%
+  ggplot(aes(Q11.8.4, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.4", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.4 = factor(Q11.8.4)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.4)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.4") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.4 to numeric
+df %>%
+  mutate(Q11.8.4 = case_when(
+    Q11.8.4 == "Less" ~ 1,
+    Q11.8.4 == "More" ~ 2,
+    Q11.8.4 == "No impact" ~ 3,
+    Q11.8.4 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.4, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.4) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.4, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.5 Changes in temperature
+
+#### Entire sample
+
+```{r Q11.8.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.5, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.5, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.5 = factor(Q11.8.5)) %>%
+  ggplot(aes(Q11.8.5, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.5", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.5 = factor(Q11.8.5)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.5)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.5") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.5 to numeric
+df %>%
+  mutate(Q11.8.5 = case_when(
+    Q11.8.5 == "Less" ~ 1,
+    Q11.8.5 == "More" ~ 2,
+    Q11.8.5 == "No impact" ~ 3,
+    Q11.8.5 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.5, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.5) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.5, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.6 Famines and food shortages
+
+#### Entire sample
+
+```{r Q11.8.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.6, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.6, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.6 = factor(Q11.8.6)) %>%
+  ggplot(aes(Q11.8.6, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.6", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.6 = factor(Q11.8.6)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.6)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.6") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.6 to numeric
+df %>%
+  mutate(Q11.8.6 = case_when(
+    Q11.8.6 == "Less" ~ 1,
+    Q11.8.6 == "More" ~ 2,
+    Q11.8.6 == "No impact" ~ 3,
+    Q11.8.6 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.6, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.6) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.6, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+## Q11.8.7 Refugees
+
+#### Entire sample
+
+```{r Q11.8.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q11.8.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q11.8.7, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q11.8.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q11.8.7, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q11.8.7 = factor(Q11.8.7)) %>%
+  ggplot(aes(Q11.8.7, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q11.8.7", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q11.8.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q11.8.7 = factor(Q11.8.7)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q11.8.7)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q11.8.7") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q11.8.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q11.8.7 to numeric
+df %>%
+  mutate(Q11.8.7 = case_when(
+    Q11.8.7 == "Less" ~ 1,
+    Q11.8.7 == "More" ~ 2,
+    Q11.8.7 == "No impact" ~ 3,
+    Q11.8.7 == "Prefer not to respond" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q11.8.7, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 4)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q11.8.7) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q11.8.7, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+
+## Q.11.9 If changes in the climate or weather patterns continue to worsen at the same rate that they are changing now, how would this impact your need to migrate?
+
+All the answers are in a **scale of 1-6**, i.e. can have the following values: 1, 2, 3, 4, 5, 6.
+
+Ex:
+1 = Significantly Increase
+2 = Moderately Increase
+3 = Will not Impact
+4 = Moderately Decrease
+5 = Significantly Decrease
+6 = Don't know
+  -2. Prefer not to answer
+
+#### Entire sample
+```{r Q.11.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  group_by(Q.11.9) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q.11.9, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc", 
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q.11.9) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q.11.9, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q.11.9 = factor(Q.11.9)) %>%
+  ggplot(aes(Q.11.9, answers)) +
+  geom_col( fill = "blue", color = "black", alpha = 0.7) +
+  labs(x = "Q.11.9", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+
+#For a Pie chart 
+
+df %>%
+  group_by(Q.11.9) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  mutate(percentage = answers / sum(answers) * 100,
+         Q.11.9 = factor(Q.11.9)) %>%
+  ggplot(aes(x = "", y = answers, fill = Q.11.9)) +
+  geom_bar(stat = "identity", width = 1, color = "black") +
+  coord_polar("y") +
+  labs(x = NULL, y = NULL, fill = "Response",
+       title = "Q.11.9") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 6)
+```
+
+#### By county
+
+```{r Q.11.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+# Convert Q.11.9 to numeric
+df %>%
+  mutate(Q.11.9 = case_when(
+    Q.11.9 == "Significantly Increase" ~ 1,
+    Q.11.9 == "Moderately Increase" ~ 2,
+    Q.11.9 == "Will not Impact" ~ 3,
+    Q.11.9 == "Moderately Decrease" ~ 4,
+    Q.11.9 == "Significantly Decrease" ~ 5,
+    Q.11.9 == "Don't know" ~ 6, 
+    Q.11.9 == "Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>%
+  summarize(mean_response = mean(Q.11.9, na.rm = TRUE)) %>%
+  kable(align = "lc", col.names = c("County", "Mean Response (1 to 5)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q1.5_County, Q.11.9) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  mutate(percentage = answers / sum(answers)) %>%
+  ungroup() %>%
+  select(Q1.5_County, Q.11.9, answers, percentage) %>%
+  kable(align = "llcc") %>%
+  kable_styling(position = "left", full_width = F)
 ```
