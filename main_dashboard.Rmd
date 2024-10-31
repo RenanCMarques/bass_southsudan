@@ -3640,10 +3640,7 @@ df %>%
 3. Regional perception : Bor South (3.6) and Kajo-keji (3.5) have mean responses above the sample mean of 3.2, indicating that households in these counties perceive a stronger increase in waste compared to Morobo (2.5) and Yei (2.8) which have the lowest mean responses, indicating that households in these counties perceive less of an increase in waste.
 4. Regional matching and moderate perceptions: Malakal (3.4), Rubkona (3.5), and Wau (3.3) have mean responses that are close to or slightly above the sample mean, suggesting consistent perceptions of increased waste generation across these areas.in contrast, Pibor (3.0) and Lainya (3.0) have mean responses at the sample mean level, indicating mixed perceptions about waste increase. 
 
-
-
-#continue from here.
-
+## Contiue from here.
 
 ## Q11.8 Over the next 5 years in South Sudan, do you think changes in climate or weather patterns will cause less/fewer of the following crises, more of the following crises, or will have no impact on the following crises? 
 
@@ -3659,6 +3656,17 @@ Ex:
 #### Entire sample
 
 ```{r Q11.8.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  mutate(Q11.8.1 = case_when(
+    Q11.8.1 == "Less impact" ~ 1,
+    Q11.8.1 == "More impact" ~ 2,
+    Q11.8.1 == "No impact" ~ 3,
+  )) %>%
+  summarize(mean(Q11.8.1, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+    
 
 df %>%
   group_by(Q11.8.1) %>%
@@ -3679,7 +3687,7 @@ df %>%
          Q11.8.1 = factor(Q11.8.1)) %>%
   ggplot(aes(Q11.8.1, answers)) +
   geom_col( fill = "blue", color = "black", alpha = 0.7) +
-  labs(x = "Q11.8.1", y = "Number of respondents") +
+  labs(x = "Q11.8.1", y = "Number of respondents", title = "Droughts and water shortage") +
   theme(axis.text.x = element_text(size = 11),
         axis.title.x = element_text(margin = margin(t = 10))) +
   coord_flip()
@@ -3696,7 +3704,7 @@ df %>%
   geom_bar(stat = "identity", width = 1, color = "black") +
   coord_polar("y") +
   labs(x = NULL, y = NULL, fill = "Response",
-       title = "Q11.8.1") +
+       title = "Droughts and water shortage") +
   theme_minimal() +
   theme(axis.text.x = element_blank(),
         axis.ticks = element_blank(),
