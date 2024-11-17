@@ -1,13 +1,15 @@
 ---
 title: "Survey Dashboard"
-subtitle: "2024 IOM South Sudan"
 author: "Data & Methods Subteam - Bass Connections"
 date: "2024-09-24"
 output:
- html_document:
-   theme: journal
-   toc: true
-   toc_float: true
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+  pdf_document:
+    toc: true
+subtitle: 2024 IOM South Sudan
 ---
 
 ```{r setup, include=FALSE}
@@ -114,6 +116,47 @@ df %>%
   kable_styling(position = "left", full_width = F)
 
 ```
+#### By gender
+
+```{r Q8.5.2 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.5.2_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.5.2_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.5.2_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+#### By age
+
+```{r Q8.5.2 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.5.2_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.5.2_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.5.2_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
 
 ### Q8.5.3: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of armed conflict/war happening in your community? {.tabset} 
 
@@ -172,7 +215,49 @@ df %>%
   kable_styling(position = "left", full_width = F)
 
 ```
-### Q8.5.3: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of land conflicts happening in your community? {.tabset} 
+
+#### By gender
+
+```{r Q8.5.3 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.5.3_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.5.3_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.5.3_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+#### By age
+
+```{r Q8.5.3 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.5.3_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.5.3_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.5.3_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.5.7: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of land conflicts happening in your community? {.tabset} 
 
 #### Entire sample
 ```{r Q8.5.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
@@ -227,6 +312,48 @@ df %>%
   kable(align = "lc") %>%
   kable_styling(position = "left", full_width = F)
 ```
+
+#### By gender
+
+```{r Q8.5.7 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.5.7_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.5.7_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.5.7_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+#### By age
+
+```{r Q8.5.7 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.5.7_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.5.7_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.5.7_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
 
 ### Q8.5.8: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of conflicts over cattle happening in your community? {.tabset} 
 
@@ -284,6 +411,46 @@ df %>%
   kable_styling(position = "left", full_width = F)
 ```
 
+#### By Gender
+```{r Q8.5.8 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.5.8_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.5.8_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.5.8_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+#### By Age
+```{r Q8.5.8 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.5.8_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.5.8_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.5.8_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+
 ### Q8.5.9: On a scale from 1 to 5, where 1 means “very unfrightened” and 5 means “very frightened,” how afraid are you of violence involving community-based militias, vigilante groups, or self-defense groups happening in your community? {.tabset}
 
 #### Entire sample
@@ -335,6 +502,48 @@ df %>%
   arrange(desc(Q1.5_County)) %>%
   group_by(Q1.5_County) %>%
   select(Q1.5_County, Q8.5.9_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+#### By gender
+
+```{r Q8.5.9 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.5.9_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.5.9_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.5.9_raw, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+#### By age
+
+```{r Q8.5.9 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>% 
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.5.9_unimputed, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.5.9_raw) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.5.9_raw, answers) %>%
   mutate(percentage = answers/sum(answers)) %>%
   kable(align = "lc") %>%
   kable_styling(position = "left", full_width = F)
