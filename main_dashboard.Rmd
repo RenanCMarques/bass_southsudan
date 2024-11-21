@@ -1976,6 +1976,672 @@ df %>%
   kable(align = "lc") %>%
   kable_styling(position = "left", full_width = F)
 ```
+## Additional Questions
+### Q8.1: How safe do you feel in your community? {.tabset}
+1 Very unsafe – 10 Very safe
+-2 Prefer not to answer
+to be continued...
+
+### Q8.2 Compared to 12 months ago, do you feel that the safety in the community has improved, there has been no change, or the safety in the community has worsened?{.tabset}
+1. The safety in the community has improved 
+2. No change 
+3. The safety in the community has worsened 
+-2 Prefer not to answer
+
+#### Entire Sample
+```{r Q8.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+df %>%
+  mutate(Q8.2 = case_when(
+    Q8.2 == "1. The safety in the community has improved" ~ 1,
+    Q8.2 == "2. No change" ~ 2,
+    Q8.2 == "3. The safety in the community has worsened" ~ 3,
+    Q8.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean_reponse = mean(Q8.2, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+
+#Pie chat 
+
+df %>%
+  group_by(Q8.2) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100,
+         label = paste0(round(percentage, 1), "%")) %>%
+  ggplot(aes(x = "", y = percentage, fill = Q8.2)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = label), color = "white", 
+            position = position_stack(vjust = 0.5), size = 4) +
+  labs(title = "Percieved Change in Safety") +
+  theme_void() +
+  theme(legend.title = element_blank())
+
+```
+
+#### By county
+
+```{r Q8.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.2 = case_when(
+    Q8.2 == "1. The safety in the community has improved" ~ 1,
+    Q8.2 == "2. No change" ~ 2,
+    Q8.2 == "3. The safety in the community has worsened" ~ 3,
+    Q8.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.2, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (1 to 3)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+#### By gender
+
+```{r Q8.2 by gender, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.2 = case_when(
+    Q8.2 == "1. The safety in the community has improved" ~ 1,
+    Q8.2 == "2. No change" ~ 2,
+    Q8.2 == "3. The safety in the community has worsened" ~ 3,
+    Q8.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  
+  group_by(Q2.1) %>% 
+  summarize(mean = mean(Q8.2, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (1 to 3)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.1, Q8.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.1)) %>%
+  group_by(Q2.1) %>%
+  select(Q2.1, Q8.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+#### By age
+
+```{r Q8.2 by age, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.2 = case_when(
+    Q8.2 == "1. The safety in the community has improved" ~ 1,
+    Q8.2 == "2. No change" ~ 2,
+    Q8.2 == "3. The safety in the community has worsened" ~ 3,
+    Q8.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  
+  group_by(Q2.2) %>% 
+  summarize(mean = mean(Q8.2, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (1 to 3)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q2.2, Q8.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q2.2)) %>%
+  group_by(Q2.2) %>%
+  select(Q2.2, Q8.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.1 I am comfortable walking around my neighborhood during the day{.tabset}
+#### Entire sample
+```{r Q8.4.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.1 = case_when(
+    Q8.4.1 == "1. Strongly disagree" ~ 0,
+    Q8.4.1 == "2. Disagree" ~ 0.25,
+    Q8.4.1 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.1 == "4. Agree" ~ 0.75,
+    Q8.4.1 == "5. Strongly agree" ~ 1,
+    Q8.4.1 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.1, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.1, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+#Pie chat 
+
+df %>%
+  group_by(Q8.4.1) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100,
+         label = paste0(round(percentage, 1), "%")) %>%
+  ggplot(aes(x = "", y = percentage, fill = Q8.4.1)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = label), color = "white", 
+            position = position_stack(vjust = 0.5), size = 4) +
+  labs(title = "Safety Walking During the Day") +
+  theme_void() +
+  theme(legend.title = element_blank())
+
+df %>%
+  group_by(Q8.4.1) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.1, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.1 = factor(Q8.4.1)) %>%
+  ggplot(aes(Q8.4.1, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.1", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q8.4.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.1 = case_when(
+    Q8.4.1 == "1. Strongly disagree" ~ 0,
+    Q8.4.1 == "2. Disagree" ~ 0.25,
+    Q8.4.1 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.1 == "4. Agree" ~ 0.75,
+    Q8.4.1 == "5. Strongly agree" ~ 1,
+    Q8.4.1 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.1, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.1) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.1, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.2 I am comfortable walking around my neighborhood at night{.tabset}
+
+#### Entire sample
+```{r Q8.4.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.2 = case_when(
+    Q8.4.2 == "1. Strongly disagree" ~ 0,
+    Q8.4.2 == "2. Disagree" ~ 0.25,
+    Q8.4.2 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.2 == "4. Agree" ~ 0.75,
+    Q8.4.2 == "5. Strongly agree" ~ 1,
+    Q8.4.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.2, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+#Pie chat 
+
+df %>%
+  group_by(Q8.4.2) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100,
+         label = paste0(round(percentage, 1), "%")) %>%
+  ggplot(aes(x = "", y = percentage, fill = Q8.4.2)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = label), color = "white", 
+            position = position_stack(vjust = 0.5), size = 4) +
+  labs(title = "Safety Walking During the Day") +
+  theme_void() +
+  theme(legend.title = element_blank())
+
+df %>%
+  group_by(Q8.4.2) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.2, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.2 = factor(Q8.4.2)) %>%
+  ggplot(aes(Q8.4.2, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.2", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q8.4.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.2 = case_when(
+    Q8.4.2 == "1. Strongly disagree" ~ 0,
+    Q8.4.2 == "2. Disagree" ~ 0.25,
+    Q8.4.2 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.2 == "4. Agree" ~ 0.75,
+    Q8.4.2 == "5. Strongly agree" ~ 1,
+    Q8.4.2 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.2, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.2) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.2, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.3 I am comfortable allowing children in my family to walk around my neighborhood at night without adult supervision{.tabset}
+
+#### Entire sample
+```{r Q8.4.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.3 = case_when(
+    Q8.4.3 == "1. Strongly disagree" ~ 0,
+    Q8.4.3 == "2. Disagree" ~ 0.25,
+    Q8.4.3 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.3 == "4. Agree" ~ 0.75,
+    Q8.4.3 == "5. Strongly agree" ~ 1,
+    Q8.4.3 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.3, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.3, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+#Pie chat 
+
+df %>%
+  group_by(Q8.4.3) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100,
+         label = paste0(round(percentage, 1), "%")) %>%
+  ggplot(aes(x = "", y = percentage, fill = Q8.4.3)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = label), color = "white", 
+            position = position_stack(vjust = 0.5), size = 4) +
+  labs(title = "Safety Walking During the Day") +
+  theme_void() +
+  theme(legend.title = element_blank())
+
+df %>%
+  group_by(Q8.4.3) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.3, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.3 = factor(Q8.4.3)) %>%
+  ggplot(aes(Q8.4.3, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.3", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+```{r Q8.4.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.3 = case_when(
+    Q8.4.3 == "1. Strongly disagree" ~ 0,
+    Q8.4.3 == "2. Disagree" ~ 0.25,
+    Q8.4.3 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.3 == "4. Agree" ~ 0.75,
+    Q8.4.3 == "5. Strongly agree" ~ 1,
+    Q8.4.3 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.3, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.3) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.3, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.4 The level of crime in this area is a cause of concern for me{.tabset}
+#### Entire sample
+```{r Q8.4.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.4 = case_when(
+    Q8.4.4 == "1. Strongly disagree" ~ 0,
+    Q8.4.4 == "2. Disagree" ~ 0.25,
+    Q8.4.4 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.4 == "4. Agree" ~ 0.75,
+    Q8.4.4 == "5. Strongly agree" ~ 1,
+    Q8.4.4 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.4, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.4, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.4) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.4, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.4 = factor(Q8.4.4)) %>%
+  ggplot(aes(Q8.4.4, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.4", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+```{r Q8.4.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.4 = case_when(
+    Q8.4.4 == "1. Strongly disagree" ~ 0,
+    Q8.4.4 == "2. Disagree" ~ 0.25,
+    Q8.4.4 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.4 == "4. Agree" ~ 0.75,
+    Q8.4.4 == "5. Strongly agree" ~ 1,
+    Q8.4.4 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.4, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.4) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.4, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.5 Me or my family fear crime in our own home{.tabset}
+
+#### Entire sample
+```{r Q8.4.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.5 = case_when(
+    Q8.4.5 == "1. Strongly disagree" ~ 0,
+    Q8.4.5 == "2. Disagree" ~ 0.25,
+    Q8.4.5 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.5 == "4. Agree" ~ 0.75,
+    Q8.4.5 == "5. Strongly agree" ~ 1,
+    Q8.4.5 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.5, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.5, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.5) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.5, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.5 = factor(Q8.4.5)) %>%
+  ggplot(aes(Q8.4.5, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.5", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q8.4.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.5 = case_when(
+    Q8.4.5 == "1. Strongly disagree" ~ 0,
+    Q8.4.5 == "2. Disagree" ~ 0.25,
+    Q8.4.5 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.5 == "4. Agree" ~ 0.75,
+    Q8.4.5 == "5. Strongly agree" ~ 1,
+    Q8.4.5 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.5, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.5) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.5, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.4.6 The high visibility of firearms or weapons in the streets of my community is causing concerns for me{.tabset}
+
+#### Entire sample
+```{r Q8.4.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.6 = case_when(
+    Q8.4.6 == "1. Strongly disagree" ~ 0,
+    Q8.4.6 == "2. Disagree" ~ 0.25,
+    Q8.4.6 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.6 == "4. Agree" ~ 0.75,
+    Q8.4.6 == "5. Strongly agree" ~ 1,
+    Q8.4.6 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.4.6, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.4.6, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.4.6) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.4.6, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.4.6 = factor(Q8.4.6)) %>%
+  ggplot(aes(Q8.4.6, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.4.6", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q8.4.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.4.6 = case_when(
+    Q8.4.6 == "1. Strongly disagree" ~ 0,
+    Q8.4.6 == "2. Disagree" ~ 0.25,
+    Q8.4.6 == "3. Neither agree nor disagree" ~ 0.5,
+    Q8.4.6 == "4. Agree" ~ 0.75,
+    Q8.4.6 == "5. Strongly agree" ~ 1,
+    Q8.4.6 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.4.6, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (0 to 1)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.4.6) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.4.6, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
+### Q8.6  In your opinion, which actors are CURRENTLY bringing insecurity in your community?{.tabset}
+Text Analysis to be continued...
+
+### Q8.7  On a scale from 1 to 10, where 1 is “very unimportant” and 10 is “very important,” how important is it to you to own a weapon to defend yourself and your family?{.tabset}
+1(very unimportant) – 10(very important)
+
+#### Entire sample
+```{r Q8.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.7 = case_when(
+    Q8.7 == "1. very unimportant" ~ 1,
+    Q8.7 == "2. Very unsafe" ~ 2.29,
+    Q8.7 == "3. Very dissatisfied" ~ 3.57,
+    Q8.7 == "4. Very unlikely" ~ 4.86,
+    Q8.7 == "5. Very safe" ~ 6.14,
+    Q8.7 == "6. Very likely" ~ 7.43,
+    Q8.7 == "7. Very satisfied" ~ 8.71,
+    Q8.7 == "10. very important" ~ 10,
+    Q8.7 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  summarize(mean = mean(Q8.7, na.rm = TRUE)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+df %>%
+  group_by(Q8.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(answers)) %>%
+  select(Q8.7, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by(Q8.7) %>%
+  summarise(answers = n()) %>%
+  arrange(desc(-answers)) %>%
+  select(Q8.7, answers) %>%
+  mutate(percentage = answers / sum(answers),
+         Q8.7 = factor(Q8.7)) %>%
+  ggplot(aes(Q8.7, answers)) +
+  geom_col(fill = "#263e58") +
+  labs(x = "Q8.7", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  coord_flip()
+```
+
+#### By county
+```{r Q8.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+df %>%
+  mutate(Q8.7 = case_when(
+    Q8.7 == "1. very unimportant" ~ 1,
+    Q8.7 == "2. Very unsafe" ~ 2.29,
+    Q8.7 == "3. Very dissatisfied" ~ 3.57,
+    Q8.7 == "4. Very unlikely" ~ 4.86,
+    Q8.7 == "5. Very safe" ~ 6.14,
+    Q8.7 == "6. Very likely" ~ 7.43,
+    Q8.7 == "7. Very satisfied" ~ 8.71,
+    Q8.7 == "10. very important" ~ 10,
+    Q8.7 == "_2 Prefer not to answer" ~ NA_real_
+  )) %>%
+  group_by(Q1.5_County) %>% 
+  summarize(mean = mean(Q8.7, na.rm = TRUE)) %>% 
+  kable(align = "lc", col.names = c("County","Mean Response (1 to 10)")) %>%
+  kable_styling(position = "left", full_width = F)
+
+df %>%
+  group_by( Q1.5_County, Q8.7) %>%
+  summarise(answers = n(), .groups = 'drop') %>%
+  arrange(desc(Q1.5_County)) %>%
+  group_by(Q1.5_County) %>%
+  select(Q1.5_County, Q8.7, answers) %>%
+  mutate(percentage = answers/sum(answers)) %>%
+  kable(align = "lc") %>%
+  kable_styling(position = "left", full_width = F)
+```
+
 
 
 # 6) Political and Legal Fragility 
