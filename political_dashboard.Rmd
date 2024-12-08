@@ -32,6 +32,7 @@ library(forcats)
 library(scales)
 library(knitr)
 library(kableExtra)
+library(readr)
 
 library(sjmisc)
 library(likert)
@@ -54,15 +55,19 @@ All question numbers below are based on the "Key Variables for Descriptive Stati
 
 All the descriptives calculated for index questions were based on the **unimputed** variable.
 
-```{r}
+```{r echo=FALSE}
 #see all variables
 #names(sudan_v2_df)
 
 # Use grep to find column names
-matching_columns <- grep("^Q10.13", names(sudan_v2_df), value = TRUE)
+matching_columns <- grep("^Q9.9", names(sudan_v2_df), value = TRUE)
 
 # Print the matching columns
 matching_columns
+
+sudan_v2_df |>
+  group_by(Q9.2) |> 
+  summarise(count = n()) 
 
 
 ```
@@ -77,7 +82,13 @@ The higher, the more fragile.
 
 ### Q10.1.2: How much confidence do you have in your state government? {.tabset}
 
-0 (none) to 1 (a lot)
+0 - A lot of confidence
+
+0.33 - Confidence
+
+0.67 - Some Confidence
+
+1 - No Confidence
 
 #### Entire sample
 
@@ -101,10 +112,10 @@ sudan_v2_df |>
 sudan_v2_df |>
   group_by(Q10.1.2_raw) |>
   summarise(answers = n()) |>
-  arrange(desc(-answers)) |>
+  arrange(desc(answers)) |>
   select(Q10.1.2_raw, answers) |>
   mutate(percentage = answers / sum(answers), Q10.1.2_raw = factor(Q10.1.2_raw)) |>
-  ggplot(aes(Q10.1.2_raw, answers)) +
+  ggplot(aes(x = fct_reorder(Q10.1.2_raw, answers), y = answers)) +
   geom_col(fill = "#263e58") +
    geom_text(aes(label = answers), 
             vjust = 0.5,
@@ -125,23 +136,30 @@ sudan_v2_df |>
 sudan_v2_df |> 
   group_by(Q1.5_County) |> 
   summarize(mean = mean(Q10.1.2_unimputed, na.rm = TRUE)) |> 
+  arrange(desc(mean)) |>
   kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df|>
-  group_by(Q10.1.2_raw, Q1.5_County) |>
+  group_by(Q1.5_County,Q10.1.2_raw) |>
   summarize(answers = n()) |>
   arrange(desc(Q1.5_County)) |>
   select(Q1.5_County, Q10.1.2_raw, answers) |>
   mutate(percentage = answers/sum(answers)) |>
-  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses in the County")) |>
   kable_styling(position = "left", full_width = F)
 
 ```
 
 ### Q10.1.10: How much confidence do you have in informal authorities, such as councils of elders? {.tabset}
 
-0 (none) to 1 (a lot)
+0 - A lot of confidence
+
+0.33 - Confidence
+
+0.67 - Some Confidence
+
+1 - No Confidence
 
 #### Entire sample
 
@@ -165,10 +183,10 @@ sudan_v2_df |>
 sudan_v2_df |>
   group_by(Q10.1.10_raw) |>
   summarise(answers = n()) |>
-  arrange(desc(-answers)) |>
+  arrange(desc(answers)) |>
   select(Q10.1.10_raw, answers) |>
   mutate(percentage = answers / sum(answers), Q10.1.10_raw = factor(Q10.1.10_raw)) |>
-  ggplot(aes(Q10.1.10_raw, answers)) +
+  ggplot(aes(x = fct_reorder(Q10.1.10_raw, answers), y = answers)) +
   geom_col(fill = "#263e58") +
   geom_text(aes(label = answers), 
             vjust = 0.5,
@@ -187,24 +205,34 @@ sudan_v2_df |>
 
 sudan_v2_df |> 
   group_by(Q1.5_County) |> 
-  summarize(mean = mean(Q10.1.10_unimputed, na.rm = TRUE)) |> 
+  summarize(mean = mean(Q10.1.10_unimputed, na.rm = TRUE)) |>
+  arrange(desc(mean)) |>
   kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df|>
-  group_by(Q10.1.10_raw, Q1.5_County) |>
+  group_by(Q1.5_County, Q10.1.10_raw) |>
   summarize(answers = n()) |>
   arrange(desc(Q1.5_County)) |>
   select(Q1.5_County, Q10.1.10_raw, answers) |>
   mutate(percentage = answers/sum(answers)) |>
-  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses in the county")) |>
   kable_styling(position = "left", full_width = F)
+
 
 ```
 
 ### Q10.10: South Sudan’s next national elections are scheduled for December 2024 after being postponed several times. How safe or unsafe would you feel going to a polling station to cast your vote? {.tabset}
 
-0 (very unsafe) to 1 (very safe)
+0 very safe
+
+0.25 somewhat safe
+
+0.5 neither safe nor unsafe
+
+0.75 somewhat unsafe
+
+1 very unsafe
 
 #### Entire sample
 
@@ -226,13 +254,13 @@ sudan_v2_df |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df |>
-  group_by(Q10.10_raw) |>
+  group_by(Q10.10_raw, Q2.1) |>
   summarise(answers = n()) |>
   arrange(desc(-answers)) |>
-  select(Q10.10_raw, answers) |>
+  select(Q10.10_raw, answers, Q2.1) |>
   mutate(percentage = answers / sum(answers), Q10.10_raw = factor(Q10.10_raw)) |>
-  ggplot(aes(Q10.10_raw, answers)) +
-  geom_col(fill = "#263e58") +
+  ggplot(aes(x = fct_reorder(Q10.10_raw, answers), y = answers,fill = as.factor(Q2.1))) +
+  geom_col() +
   geom_text(aes(label = answers), 
             vjust = 0.5,
             hjust = -0.3,
@@ -252,23 +280,32 @@ sudan_v2_df |>
 sudan_v2_df |> 
   group_by(Q1.5_County) |> 
   summarize(mean = mean(Q10.10_unimputed, na.rm = TRUE)) |> 
+  arrange(desc(mean)) |>
   kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df|>
-  group_by(Q10.10_raw, Q1.5_County) |>
+  group_by(Q1.5_County, Q10.10_raw) |>
   summarize(answers = n()) |>
   arrange(desc(Q1.5_County)) |>
   select(Q1.5_County, Q10.10_raw, answers) |>
   mutate(percentage = answers/sum(answers)) |>
-  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses in the county")) |>
   kable_styling(position = "left", full_width = F)
 
 ```
 
 ### Q10.12: At present, how safe do you feel speaking publicly on politically sensitive issues? {.tabset}
 
-0(very unsafe) to 1(very safe)
+0 - very safe
+
+0.25 - safe
+
+0.5 - neither safe nor unsafe
+
+0.75 - unsafe
+
+1 - very unsafe
 
 #### Entire sample
 
@@ -290,13 +327,14 @@ sudan_v2_df |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df |>
-  group_by(Q10.12_raw) |>
+  group_by(Q10.12_raw, Q2.1) |>
   summarise(answers = n()) |>
   arrange(desc(-answers)) |>
-  select(Q10.12_raw, answers) |>
+  select(Q10.12_raw, answers, Q2.1) |>
   mutate(percentage = answers / sum(answers), Q10.12_raw = factor(Q10.12_raw)) |>
-  ggplot(aes(Q10.12_raw, answers)) +
-  geom_col(fill = "#263e58") +
+  #ggplot(aes(Q10.12_raw, answers)) +
+  ggplot(aes(x = fct_reorder(Q10.12_raw, answers), y = answers,fill = as.factor(Q2.1))) +
+  geom_col() +
   geom_text(aes(label = answers), 
             vjust = 0.5,
             hjust = -0.3,
@@ -315,23 +353,32 @@ sudan_v2_df |>
 sudan_v2_df |> 
   group_by(Q1.5_County) |> 
   summarize(mean = mean(Q10.12_unimputed, na.rm = TRUE)) |> 
+  arrange(desc(mean)) |>
   kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df|>
-  group_by(Q10.12_raw, Q1.5_County) |>
+  group_by(Q1.5_County, Q10.12_raw) |>
   summarize(answers = n()) |>
   arrange(desc(Q1.5_County)) |>
   select(Q1.5_County, Q10.12_raw, answers) |>
   mutate(percentage = answers/sum(answers)) |>
-  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses in the county")) |>
   kable_styling(position = "left", full_width = F)
 
 ```
 
 ### Q10.13: Which of the following statements best describes the role that politicians in Juba play in your community? {.tabset}
 
-0(they make the community much less safe) to 1(they make the community much more safe)
+0 - make community much more safe
+
+0.25 - make community more safe
+
+0.5 - make community neither more nor less safe
+
+0.75 - make community less safe
+
+1 - make community much less safe
 
 #### Entire sample
 
@@ -349,7 +396,7 @@ sudan_v2_df |>
   select(Q10.13_raw, answers) |>
   mutate(percentage = answers/sum(answers)) |>
   kable(align = "lc", 
-        col.names = c("Response", "Number of Responses", "Percent of Total Responses")) |>
+        col.names = c("Response", "Number of Responses", "Percent of Total Responses in the county")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df |>
@@ -358,7 +405,8 @@ sudan_v2_df |>
   arrange(desc(-answers)) |>
   select(Q10.13_raw, answers) |>
   mutate(percentage = answers / sum(answers), Q10.13_raw = factor(Q10.13_raw)) |>
-  ggplot(aes(Q10.13_raw, answers)) +
+  ggplot(aes(x = fct_reorder(Q10.13_raw, answers), y = answers)) + 
+ # ggplot(aes(Q10.13_raw, answers)) +
   geom_col(fill = "#263e58") +
   geom_text(aes(label = answers), 
             vjust = 0.5,
@@ -367,7 +415,12 @@ sudan_v2_df |>
   labs(x = "Q10.13: Trust in National Government", y = "Number of respondents") +
   theme(axis.text.x = element_text(size = 11),
         axis.title.x = element_text(margin = margin(t = 10))) +
-  theme_minimal() +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
   coord_flip()
 ```
 
@@ -378,11 +431,12 @@ sudan_v2_df |>
 sudan_v2_df |> 
   group_by(Q1.5_County) |> 
   summarize(mean = mean(Q10.13_unimputed, na.rm = TRUE)) |> 
+  arrange(desc(mean)) |>
   kable(align = "lc", col.names = c("County", "Mean Response (0 to 1)")) |>
   kable_styling(position = "left", full_width = F)
 
 sudan_v2_df|>
-  group_by(Q10.13_raw, Q1.5_County) |>
+  group_by(Q1.5_County, Q10.13_raw) |>
   summarize(answers = n()) |>
   arrange(desc(Q1.5_County)) |>
   select(Q1.5_County, Q10.13_raw, answers) |>
@@ -396,28 +450,1901 @@ sudan_v2_df|>
 
 # Additional Political/Legal Descriptive Questions
 
-### Q9.1 **Imagine that you have a problem or a dispute, who would you first seek help from? (Do NOT read the answers)** {.tabset}
+\*\*Questions from here and onward have not been imputed, so the mean calculation does not work. Instead, for each sample I have found the most commonly reported response and what percent of the total responses that makes up for the sample. For each county, the first table shows the most common responses reported by each county with a percentage showing the percent that this response makes up of all other responses in the county
 
-### Q9.2 **Do you feel that you are able to resolve any disputes you have with community members without experiencing discrimination?**  {.tabset}
+------------------------------------------------------------------------
+
+### Q9.8 **How much do you think the following policies would contribute to long-term peace in South Sudan, on a scale from 1 through 5 where 1 means “makes peace much less likely” and 5 means “makes peace much more likely.”** {.tabset}
+
+Makes peace much less likely\
+Makes peace less likely\
+Has no effect on peace\
+Makes peace more likely\
+Makes peace much more likely\
+Prefer not to answer
+
+### **Q9.8.1 Dialogues between community members**
+
+#### Entire sample
+
+```{r Q9.8.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.1, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.1) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.1, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.1) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.1, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.1 = factor(Q9.8.1)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.1, answers), y = answers)) + 
+ # ggplot(aes(Q10.13_raw, answers)) +
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.1: Dialogues between community members", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.1) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.1, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.1) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.1, answers) |>
+  mutate(percentage = answers/sum(answers) * 100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.2 Dialogues between representatives of the military and representatives of non-state armed groups**
+
+#### Entire sample
+
+```{r Q9.8.2, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.2, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.2) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.2, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.2) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.2, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.2 = factor(Q9.8.2)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.2, answers), y = answers)) + 
+ # ggplot(aes(Q10.13_raw, answers)) +
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.2: Dialogues between representatives of the military and representatives of non-state armed groups", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.2 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.2) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.2, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.2) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.2, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.3 Inclusion of more WOMEN in dialogues, community leadership, or resource management committees**
+
+#### Entire sample
+
+```{r Q9.8.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.3, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.3) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.3, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.3) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.3, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.3 = factor(Q9.8.3)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.3, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.3: Inclusion of more women in dialogues, community leadership, or resource management committees", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.3) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.3, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.3) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.3, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.4 Inclusion of more YOUTH in dialogues, community leadership, or resource management committees**
+
+#### Entire sample
+
+```{r Q9.8.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.4, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.4) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.4, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+
+sudan_v2_df |>
+  group_by(Q9.8.4) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.4, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.4 = factor(Q9.8.4)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.4, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.4: Inclusion of more youth in dialogues, community leadership, or resource management committees", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.4) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.4, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.4) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.4, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.5 Confessions by perpetrators of violence or crimes**
+
+#### Entire sample
+
+```{r Q9.8.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.5, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.5) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.5, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.5) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.5, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.5 = factor(Q9.8.5)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.5, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.5: Confessions by perpetrators of violence or crimes", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.5) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.5, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.5) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.5, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.6 Apologies by perpetrators of violence or crimes**
+
+#### Entire sample
+
+```{r Q9.8.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.6, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.6) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.6, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.6) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.6, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.6 = factor(Q9.8.6)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.6, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.6: Apologies by perpetrators of violence or crimes", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.6) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.6, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.6) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.6, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.7 Rehabilitation programs for perpetrators of violence or crimes**
+
+#### Entire sample
+
+```{r Q9.8.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.7, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.7) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.7, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.7) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.7, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.7 = factor(Q9.8.7)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.7, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.7: Rehabilitation programs for perpetrators of violence or crimes", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.7) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.7, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.7) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.7, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.8 Criminal prosecutions for perpetrators of violence or crimes**
+
+#### Entire sample
+
+```{r Q9.8.8, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.8, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.8) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.8, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.8) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.8, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.8 = factor(Q9.8.8)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.8, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.8: Criminal prosecutions for perpetrators of violence or crimes", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.8 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.8) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.8, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.8) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.8, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.9 A commission to discover the truth about the conflict**
+
+#### Entire sample
+
+```{r Q9.8.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.9, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.9) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.9, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.9) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.9, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.9 = factor(Q9.8.9)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.9, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.9: A commission to discover the truth about the conflict", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.9) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.9, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+ 
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.9) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.9, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.10 A museum about the conflict**
+
+#### Entire sample
+
+```{r Q9.8.10, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.10, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.10) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.10, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.10) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.10, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.10 = factor(Q9.8.10)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.10, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.10: A museum about the conflict", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.10 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.10) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.10, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.10) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.10, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.11 Compensation or other reparations for victims**
+
+#### Entire sample
+
+```{r Q9.8.11, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.11, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.11) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.11, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.11) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.11, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.11 = factor(Q9.8.11)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.11, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.11: Compensation or other reparations for victims", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.11 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.11) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.11, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.11) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.11, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.8.12 Draft a new permanent constitution**
+
+#### Entire sample
+
+```{r Q9.8.12, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.8.12, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+# Find the most common response for the entire dataset
+sudan_v2_df |>
+  group_by(Q9.8.12) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.8.12, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.8.12) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.8.12, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.8.12 = factor(Q9.8.12)) |>
+  ggplot(aes(x = fct_reorder(Q9.8.12, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.8.12: Draft a new permanent constitution", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.8.12 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.8.12) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.8.12, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.8.12) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.8.12, answers) |>
+  mutate(percentage = answers/sum(answers)*100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### **Q9.9 Which actors should be involved in efforts to bring peace to the communities? (Do not read the answers; mark all that apply) - BAD WILL FIX LATER. need to separate data values potentially?**
+
+1.  Community members
+
+2.  Religious leaders
+
+3.  Government authorities (at county, payam level)
+
+4.  Army
+
+5.  Community leaders
+
+6.  NGOs / UN
+
+7.  Others: \_\_\_\_\_\_\_
+
+       -2. Prefer not to answer
+
+#### Entire sample
+
+```{r Q9.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  summarize(mean = mean(Q9.9, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.9) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.9, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.9) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.9, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.9 = factor(Q9.9)) |>
+  ggplot(aes(x = fct_reorder(Q9.9, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.9: Which actors should be involved in efforts to bring peace to the communities?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.9) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.9, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.9) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.9, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q9.1 **Imagine that you have a problem or a dispute, who would you first seek help from? (Do NOT read the answers)** {.tabset}
+#### Entire sample
+
+```{r Q9.1, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q9.1, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.1) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.1, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.1) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.1, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.1 = factor(Q9.1)) |>
+  ggplot(aes(x = fct_reorder(Q9.1, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.1: Imagine that you have a problem or a dispute, who would you first seek help from?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.1 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.1) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.1, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.1) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.1, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+
+### Q9.2 **Do you feel that you are able to resolve any disputes you have with community members without experiencing discrimination?** {.tabset}
+#### NOT IN DATASET 
 
 ### Q9.3 **Imagine that a person from this community stole cattle from your family. Who would you be most likely to seek help from?** {.tabset}
+#### Entire sample
 
-### Q9.4 I**magine that a person from outside this community stole cattle from your family. Who would you be most likely to seek help from?**  {.tabset}
+```{r Q9.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q9.3, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
 
-### Q9.5 **Q9.5 Imagine that there is an outbreak of violent clashes between two different ethnic groups in your area. Which actor would be most helpful for resolving this dispute?**  {.tabset}
+sudan_v2_df |>
+  group_by(Q9.3) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.3, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.3) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.3, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.3 = factor(Q9.3)) |>
+  ggplot(aes(x = fct_reorder(Q9.3, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.3: Imagine that a person from this community stole cattle from your family. Who would you be most likely to seek help from?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.3) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.3, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.3) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.3, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q9.4 **Imagine that a person from outside this community stole cattle from your family. Who would you be most likely to seek help from?** {.tabset}
+#### Entire sample
+
+```{r Q9.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q9.4, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.4) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.4, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.4) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.4, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.4 = factor(Q9.4)) |>
+  ggplot(aes(x = fct_reorder(Q9.4, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.4: Imagine that a person from outside this community stole cattle from your family. Who would you be most likely to seek help from?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.4) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.4, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.4) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.4, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
+
+### Q9.5 **Imagine that there is an outbreak of violent clashes between two different ethnic groups in your area. Which actor would be most helpful for resolving this dispute?** {.tabset}
+#### Entire sample
+
+```{r Q9.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q9.5, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.5) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q9.5, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q9.5) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q9.5, answers) |>
+  mutate(percentage = answers / sum(answers), Q9.5 = factor(Q9.5)) |>
+  ggplot(aes(x = fct_reorder(Q9.5, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q9.5: Imagine that there is an outbreak of violent clashes between two different ethnic groups in your area. Which actor would be most helpful for resolving this dispute?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q9.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q9.5) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q9.5, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q9.5) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q9.5, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.1 How much confidence do you have in your local government? {.tabset}
+#### Entire sample
+
+```{r Q10.1.1., eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.1., na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.1.) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.1., answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.1.) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.1., answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.1. = factor(Q10.1.1.)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.1., answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.1.: How much confidence do you have in your local government?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.1. by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.1.) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.1., answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.1.) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.1., answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.3 How much confidence do you have in the national government? {.tabset}
+#### Entire sample
+
+```{r Q10.1.3, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.3, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.3) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.3, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.3) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.3, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.3 = factor(Q10.1.3)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.3, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.3: How much confidence do you have in the national government?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.3 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.3) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.3, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.3) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.3, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.4 How much confidence do you have in the police? {.tabset}
+#### Entire sample
+
+```{r Q10.1.4, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.4, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.4) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.4, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.4) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.4, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.4 = factor(Q10.1.4)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.4, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.4: How much confidence do you have in the police?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.4 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.4) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.4, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.4) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.4, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.5 How much confidence do you have in the military {.tabset}
+#### Entire sample
+
+```{r Q10.1.5, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.5, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.5) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.5, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.5) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.5, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.5 = factor(Q10.1.5)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.5, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.5: How much confidence do you have in the military", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.5 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.5) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.5, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.5) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.5, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.6 How much confidence do you have in the statutory courts? {.tabset}
+#### Entire sample
+
+```{r Q10.1.6, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q9.4, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.6) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.6, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.6) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.6, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.6 = factor(Q10.1.6)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.6, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.6 How much confidence do you have in the statutory courts?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.6 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.6) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.6, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.6) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.6, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.7 How much confidence do you have in religious institutions/leaders? {.tabset}
+#### Entire sample
+
+```{r Q10.1.7, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.7, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.7) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.7, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.7) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.7, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.7 = factor(Q10.1.7)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.7, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.7: How much confidence do you have in religious institutions/leaders?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.7 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.7) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.7, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.7) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.7, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.8 How much confidence do you have in customary law? {.tabset}
+#### Entire sample
+
+```{r Q10.1.8, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.8, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.8) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.8, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.8) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.8, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.8 = factor(Q10.1.8)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.8, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.8 How much confidence do you have in customary law?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.8 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.8) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.8, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.8) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.8, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
 
 ### Q10.1.9 How much confidence do you have in village chiefs? {.tabset}
+#### Entire sample
+
+```{r Q10.1.9, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+sudan_v2_df |>
+  summarize(mean = mean(Q10.1.9, na.rm = TRUE)) |> # haven not been attached numerical values
+  kable(align = "lc") |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.9) |>                 # Group by response
+  summarize(answers = n(), .groups = 'drop') |>  # Count occurrences of each responss
+  mutate(total_responses = sum(answers)) |>
+  arrange(desc(answers)) |>          # Sort responses by descending counts
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |> # Calculate percentage of total responses
+  select(Q10.1.9, answers, percentage) |> # Keep relevant columns
+  kable(align = "lc", col.names = c("Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df |>
+  group_by(Q10.1.9) |>
+  summarise(answers = n()) |>
+  arrange(desc(-answers)) |>
+  select(Q10.1.9, answers) |>
+  mutate(percentage = answers / sum(answers), Q10.1.9 = factor(Q10.1.9)) |>
+  ggplot(aes(x = fct_reorder(Q10.1.9, answers), y = answers)) + 
+  geom_col(fill = "#263e58") +
+  geom_text(aes(label = answers), 
+            vjust = 0.5,
+            hjust = -0.3,
+            size = 2.0) +
+  labs(x = "Q10.1.9 How much confidence do you have in village chiefs?", y = "Number of respondents") +
+  theme(axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(margin = margin(t = 10))) +
+  theme(
+  axis.text.x = element_text(size = 6),        # Make x-axis text smaller
+  axis.text.y = element_text(size = 6),       # Make y-axis text smaller
+  axis.title.x = element_text(size = 6),      # Make x-axis title text smaller
+  axis.title.y = element_text(size = 6),      # Make y-axis title text smaller
+  ) +
+  coord_flip()
+```
+
+#### By county
+
+```{r Q10.1.9 by county, eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE, out.width="65%"}
+
+sudan_v2_df |>
+  group_by(Q1.5_County, Q10.1.9) |>
+  summarize(answers = n(), .groups = 'drop') |> #Count occurrences of each response
+  group_by(Q1.5_County) |>                      # Regroup by county
+  mutate(total_responses = sum(answers)) |>
+  ungroup()|>
+  arrange(Q1.5_County, desc(answers)) |>         # Sort by county and descending counts
+  group_by(Q1.5_County) |>
+  slice_max(answers, n = 1, with_ties = FALSE) |> # Pick the most frequent response
+  mutate(percentage = answers / total_responses * 100) |>  # Calculate percentage of total responses per county
+  select(Q1.5_County, Q10.1.9, answers, percentage) |>   # Keep only relevant columns
+  kable(align = "lc", col.names = c("County", "Most Common Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+sudan_v2_df|>
+  group_by(Q1.5_County, Q10.1.9) |>
+  summarize(answers = n()) |>
+  arrange(desc(Q1.5_County)) |>
+  select(Q1.5_County, Q10.1.9, answers) |>
+  mutate(percentage = answers/sum(answers) *100) |>
+  kable(align = "lc", col.names = c("County", "Response", "Number of Responses", "Percent of Total Responses")) |>
+  kable_styling(position = "left", full_width = F)
+
+```
